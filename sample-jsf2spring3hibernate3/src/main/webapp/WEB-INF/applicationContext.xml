@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<context:annotation-config />
+	<context:component-scan base-package="com.sample.dao" />
+
+	<context:property-placeholder location="classpath:myproj.properties" />
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass">
+			<value>${jdbc.driverClassName}</value>
+		</property>
+		<property name="jdbcUrl">
+			<value>${jdbc.databaseurl}</value>
+		</property>
+		<property name="user">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+		<property name="properties">
+			<props>
+				<prop key="c3p0.acquire_increment">5</prop>
+				<prop key="c3p0.idle_test_period">100</prop>
+				<prop key="c3p0.max_size">10</prop>
+				<prop key="c3p0.max_statements">0</prop>
+				<prop key="c3p0.min_size">1</prop>
+				<prop key="user">${jdbc.username}</prop>
+				<prop key="password">${jdbc.password}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- <bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation">
+			<value>classpath:hibernate.cfg.xml</value>
+		</property>
+		<property name="configurationClass">
+			<value>org.hibernate.cfg.AnnotationConfiguration</value>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${jdbc.dialect}</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hbm2ddl.auto">create</prop>
+			</props>
+		</property>
+	</bean> -->
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+
+		<property name="dataSource" ref="dataSource" />
+		<property name="annotatedClasses">
+			<list>
+				<value>com.sample.entity.Registration</value>
+			</list>
+		</property>
+		<property name="annotatedPackages">
+			<list>
+				<value>com.sample.entity</value>
+			</list>
+		</property>
+
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${jdbc.dialect}</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<tx:annotation-driven />
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+</beans>
